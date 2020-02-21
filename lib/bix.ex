@@ -53,15 +53,12 @@ defmodule Bix do
 
   @spec do_zip(binary, binary, (byte, byte -> byte), binary) :: binary
   defp do_zip(a, b, fun, acc) when byte_size(a) == byte_size(b) and a != <<>> do
-    x = :binary.first(a)
-    y = :binary.first(b)
+    import Bix.Binary
 
-    a = :binary.part(a, 1, byte_size(a) - 1)
-    b = :binary.part(b, 1, byte_size(b) - 1)
-
+    {x, a} = uncons a
+    {y, b} = uncons b
     z = fun.(x, y)
     acc = acc <> <<z>>
-
     do_zip(a, b, fun, acc)
   end
 
@@ -75,13 +72,12 @@ defmodule Bix do
 
   @spec do_map(binary, (byte -> byte), binary) :: binary
   defp do_map(a, fun, acc) when a != <<>> do
-    first = :binary.first(a)
-    rest = :binary.part(a, 1, byte_size(a) - 1)
+    import Bix.Binary
 
-    x = fun.(first)
+    {f, r} = uncons a
+    x = fun.(f)
     acc = acc <> <<x>>
-
-    do_map(rest, fun, acc)
+    do_map(r, fun, acc)
   end
 
   defp do_map(<<>>, _fun, acc), do: acc
@@ -103,13 +99,12 @@ defmodule Bix do
 
   @spec do_bsl(binary, 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7, byte, binary) :: binary
   defp do_bsl(a, n, cin, acc) when a != <<>> do
-    first = :binary.first(a)
-    rest = :binary.part(a, 1, byte_size(a) - 1)
+    import Bix.Binary
 
-    {x, cout} = Bix.Carry.bsl(first, n, cin)
+    {f, r} = uncons a
+    {x, cout} = Bix.Carry.bsl(f, n, cin)
     acc = acc <> <<x>>
-
-    do_bsl(rest, n, cout, acc)
+    do_bsl(r, n, cout, acc)
   end
 
   defp do_bsl(<<>>, _n, _cin, acc), do: acc
