@@ -78,8 +78,8 @@ defmodule Bix.Enum do
 
     {x, a} = uncons_r(a)
     {z, carry_out} = fun.(x, carry_in)
-    acc = acc <> <<z>>
-    do_map_with_carry_l(a, fun, acc, carry_out)
+    acc = <<z>> <> acc
+    do_map_with_carry_r(a, fun, acc, carry_out)
   end
 
   defp do_map_with_carry_r(<<>>, _fun, acc, _carry_in), do: acc

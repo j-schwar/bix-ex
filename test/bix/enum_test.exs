@@ -22,14 +22,17 @@ defmodule Bix.EnumTest do
     assert Bix.Enum.zip(a, b, &(&1 + &2)) == c
   end
 
-  test "map with carry little endian" do
-    a = <<0x80, 0xa0, 0x01, 0x80>>
-    b = <<0x01, 0x41, 0x03, 0x00>>
+  test "trival map with carry little endian" do
+    a = <<0x80, 0x00, 0x00, 0x00>>
+    b = <<0x00, 0x01, 0x00, 0x00>>
     fun = &(Bix.Carry.bsl(&1, 1, &2))
-    assert Bix.Enum.map_with_carry(a, fun, [endian: :little, carry_in: 1]) == b
+    assert Bix.Enum.map_with_carry(a, fun, [endian: :little, carry_in: 0]) == b
   end
 
-  test "map with carry big endian" do
-
+  test "trivial map with carry big endian" do
+    a = <<0x00, 0x00, 0x00, 0x80>>
+    b = <<0x00, 0x00, 0x01, 0x00>>
+    fun = &(Bix.Carry.bsl(&1, 1, &2))
+    assert Bix.Enum.map_with_carry(a, fun, [endian: :big, carry_in: 0]) == b
   end
 end

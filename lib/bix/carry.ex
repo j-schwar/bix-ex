@@ -58,7 +58,7 @@ defmodule Bix.Carry do
       {0x7a, 0x05}
 
   """
-  @spec bsl(byte, 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7, byte) :: {byte, byte}
+  @spec bsl(byte, 0..7, byte) :: {byte, byte}
   def bsl(x, s, carry_in) when are_bytes(x, s, carry_in) and s < 8 do
     carry_out = x >>> (8 - s)
     result = truncate_byte(x <<< s) ||| carry_in
