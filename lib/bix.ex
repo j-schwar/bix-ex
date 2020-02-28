@@ -52,17 +52,11 @@ defmodule Bix do
 
   """
   @spec bsl(binary, 0..7) :: binary
-  def bsl(a, n) when n < 8, do: do_bsl(a, n, 0, <<>>)
-
-  @spec do_bsl(binary, 0..7, byte, binary) :: binary
-  defp do_bsl(a, n, cin, acc) when a != <<>> do
-    import Bix.Binary
-
-    {f, r} = uncons a
-    {x, cout} = Bix.Carry.bsl(f, n, cin)
-    acc = acc <> <<x>>
-    do_bsl(r, n, cout, acc)
+  def bsl(a, n, opts \\ []) when n < 8 do
+    Bix.Enum.map_with_carry(a, &(Bix.Carry.bsl(&1, n, &2)), opts)
   end
 
-  defp do_bsl(<<>>, _n, _cin, acc), do: acc
+  def add(a, b, opts \\ []) do
+    Bix.Enum.zip_with_carry(a, b, &Bix.Carry.add/3, opts)
+  end
 end

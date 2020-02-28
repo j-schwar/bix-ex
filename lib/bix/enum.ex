@@ -83,4 +83,38 @@ defmodule Bix.Enum do
   end
 
   defp do_map_with_carry_r(<<>>, _fun, acc, _carry_in), do: acc
+
+  def zip_with_carry(a, b, fun, opts \\ []) do
+    endian = Keyword.get(opts, :endian, :little)
+    carry_in = Keyword.get(opts, :carry_in, 0)
+    case endian do
+      :little -> do_zip_with_carry_l(a, b, fun, <<>>, carry_in)
+      :big -> do_zip_with_carry_r(a, b, fun, <<>>, carry_in)
+      _ -> raise ArgumentError, message: "endian: must be either :little or :big"
+    end
+  end
+
+  defp do_zip_with_carry_l(a, b, fun, acc, carry_in) when a != <<>> and b != <<>> do
+    import Bix.Binary
+
+    {x, a} = uncons(a)
+    {y, b} = uncons(b)
+    {z, carry_out} = fun.(x, y, carry_in)
+    acc = acc <> <<z>>
+    do_zip_with_carry_l(a, b, fun, acc, carry_out)
+  end
+
+  defp do_zip_with_carry_l(<<>>, <<>>, _fun, acc, _carry_in), do: acc
+
+  defp do_zip_with_carry_r(a, b, fun, acc, carry_in) when a != <<>> and b != <<>> do
+    import Bix.Binary
+
+    {x, a} = uncons_r(a)
+    {y, b} = uncons_r(b)
+    {z, carry_out} = fun.(x, y, carry_in)
+    acc = <<z>> <> acc
+    do_zip_with_carry_r(a, b, fun, acc, carry_out)
+  end
+
+  defp do_zip_with_carry_r(<<>>, <<>>, _fun, acc, _carry_in), do: acc
 end
