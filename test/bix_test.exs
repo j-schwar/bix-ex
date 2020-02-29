@@ -1,5 +1,7 @@
 defmodule BixTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: false
+  use ExCheck
+
   doctest Bix
 
   ## Bix.band
@@ -60,5 +62,25 @@ defmodule BixTest do
 
   test "shift left" do
     assert Bix.bsl(<<0x01, 0x80, 0x04>>, 4) == <<0x10, 0x00, 0x48>>
+  end
+
+  ## Property Tests
+
+  property :add_little_endian do
+    for_all {x, y} in {non_neg_integer(), non_neg_integer()} do
+      a = <<x::little-64>>
+      b = <<y::little-64>>
+      r = x + y
+      Bix.add(a, b, endian: :little) == <<r::little-64>>
+    end
+  end
+
+  property :add_big_endian do
+    for_all {x, y} in {non_neg_integer(), non_neg_integer()} do
+      a = <<x::big-64>>
+      b = <<y::big-64>>
+      r = x + y
+      Bix.add(a, b, endian: :big) == <<r::big-64>>
+    end
   end
 end
