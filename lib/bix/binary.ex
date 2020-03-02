@@ -1,21 +1,43 @@
 defmodule Bix.Binary do
   @moduledoc """
-  `Bix.Binary` provides some helper methods when working with binaries.
+  `Bix.Binary` provides some helper methods when working with bitstrings.
   """
+
+  # TODO: Rename module as these now work with bitstrings
 
   @doc """
-  Returns the first byte of a binary.
+  Returns the first byte of a bitstring.
 
-  Raises an argument error if `a` is empty.
+  If the bitstring is smaller than a byte, then the string is zero-extended and
+  the value is returned as an unsigned integer.
 
-  ## Example
+  Raises an argument exception if passed an empty bitstring.
 
-      iex> Bix.Binary.first <<1, 2, 3, 4>>
+  ## Examples
+
+      iex> Bix.Binary.first <<1, 2, 3>>
       1
 
+      iex> Bix.Binary.first <<0xff, 0x01::size(1)>>
+      255
+
+      iex> Bix.Binary.first <<0x05::size(3)>>
+      5
+
   """
-  @spec first(binary) :: byte
-  def first(a), do: :binary.first(a)
+  @spec first(bitstring) :: byte
+  def first(a) when bit_size(a) >= 8 do
+    <<x, _::bitstring>> = a
+    x
+  end
+
+  def first(a) when bit_size(a) < 8 and a != <<>> do
+    padding = 8 - bit_size(a)
+    <<x>> = <<0::size(padding), a::bitstring>>
+    x
+  end
+
+  def first(<<>>), do: raise ArgumentError, message: "empty bitstring"
 
   @doc """
   Returns the last byte of a binary.
@@ -32,18 +54,32 @@ defmodule Bix.Binary do
   def last(a), do: :binary.last(a)
 
   @doc """
-  Returns all but the first byte of a binary. Analogous to the `tl` function.
+  Returns all but the first byte of a bitstring. Analogous to the `tl` function.
 
-  Raises an argument error if `a` is empty.
+  If the bitstring is smaller than a byte, returns an empty bitstring.
+
+  Raises an argument error if passed an empty bitstring.
 
   ## Example
 
       iex> Bix.Binary.rest <<1, 2, 3, 4>>
       <<2, 3, 4>>
 
+      iex> Bix.Binary.rest <<1, 5, 9::size(4)>>
+      <<5, 9::size(4)>>
+
+      iex> Bix.Binary.rest <<100::size(7)>>
+      <<>>
   """
-  @spec rest(binary) :: binary
-  def rest(a), do: :binary.part(a, 1, byte_size(a) - 1)
+  @spec rest(bitstring) :: bitstring
+  def rest(a) when bit_size(a) >= 8 do
+    <<_, xs::bitstring>> = a
+    xs
+  end
+
+  def rest(a) when bit_size(a) < 8 and a != <<>>, do: <<>>
+
+  def rest(<<>>), do: raise ArgumentError, message: "empty bitstring"
 
   @doc """
   A convenience operation which combines the results of `first` and `rest` into
@@ -57,7 +93,7 @@ defmodule Bix.Binary do
       {1, <<2, 3>>}
 
   """
-  @spec uncons(binary) :: {byte, binary}
+  @spec uncons(bitstring) :: {byte, bitstring}
   def uncons(a) do
     f = first(a)
     r = rest(a)
