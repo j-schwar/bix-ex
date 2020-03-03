@@ -14,10 +14,10 @@ defmodule Bix.Enum do
       <<2, 3, 0::size(2)>>
 
   """
-  @spec map(binary, (byte -> byte)) :: binary
+  @spec map(bitstring, (byte -> byte)) :: bitstring
   def map(a, fun), do: do_map(a, fun, <<>>)
 
-  @spec do_map(binary, (byte -> byte), binary) :: binary
+  @spec do_map(bitstring, (byte -> byte), bitstring) :: bitstring
   defp do_map(a, fun, acc) when a != <<>> do
     import Bix.Binary
 
