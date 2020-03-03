@@ -127,7 +127,7 @@ defmodule Bix.Binary do
       iex> Bix.Binary.concat <<1, 2>>, <<3::size(2)>>
       <<1, 2, 3::size(2)>>
 
-      iex> Bix.Binary.concat <<3::size(2)>>, <<1, 2>>
+      iex> Bix.Binary.concat <<3::size(3)>>, <<1, 2>>
       <<96, 32, 2::size(3)>>
 
   """
