@@ -4,7 +4,15 @@ defmodule Bix.Enum do
   """
 
   @doc """
-  Maps `fun` over each byte in a binary to produce a new binary.
+  Transforms a bitstring into another by mapping `fun` over it byte by byte.
+
+  The size of the resultant bitstring is equivalent to the size of the first.
+
+  ## Example
+
+      iex> Bix.Enum.map <<1, 2, 3::size(2)>>, &(&1 + 1)
+      <<2, 3, 0::size(2)>>
+
   """
   @spec map(binary, (byte -> byte)) :: binary
   def map(a, fun), do: do_map(a, fun, <<>>)
@@ -13,9 +21,10 @@ defmodule Bix.Enum do
   defp do_map(a, fun, acc) when a != <<>> do
     import Bix.Binary
 
+    bit_length = if bit_size(a) >= 8, do: 8, else: bit_size(a)
     {f, r} = uncons(a)
-    x = fun.(f)
-    acc = acc <> <<x>>
+    x = <<fun.(f)::size(bit_length)>>
+    acc = concat(acc, x)
     do_map(r, fun, acc)
   end
 
