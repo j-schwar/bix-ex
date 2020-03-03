@@ -31,25 +31,28 @@ defmodule Bix.Enum do
   defp do_map(<<>>, _fun, acc), do: acc
 
   @doc """
-  Zips two binaries together using `fun`.
+  Zips two bitstrings together using `fun`.
 
-  `fun` must be an operation which does not produce carry bits, for example
-  bitwise or and bitwise and, but not addition.
+  Both bitstrings (`a`, and `b`) must have the same `bit_size`.
 
-  Both binaries, `a` and `b`, must have the same number of bytes as this
-  operation is not defined for cases where they do not.
+  ## Example
+
+      iex> Bix.Enum.zip <<1, 2, 4::size(3)>>, <<2, 2, 3::size(3)>>, &Bitwise.bor/2
+      <<3, 2, 7::size(3)>>
+
   """
   @spec zip(binary, binary, (byte, byte -> byte)) :: binary
   def zip(a, b, fun), do: do_zip(a, b, fun, <<>>)
 
-  @spec do_zip(binary, binary, (byte, byte -> byte), binary) :: binary
-  defp do_zip(a, b, fun, acc) when byte_size(a) == byte_size(b) and a != <<>> do
+  @spec do_zip(bitstring, bitstring, (byte, byte -> byte), bitstring) :: bitstring
+  defp do_zip(a, b, fun, acc) when bit_size(a) == bit_size(b) and a != <<>> do
     import Bix.Binary
 
+    bit_length = if bit_size(a) >= 8, do: 8, else: bit_size(a)
     {x, a} = uncons(a)
     {y, b} = uncons(b)
-    z = fun.(x, y)
-    acc = acc <> <<z>>
+    z = <<fun.(x, y)::size(bit_length)>>
+    acc = concat(acc, z)
     do_zip(a, b, fun, acc)
   end
 
