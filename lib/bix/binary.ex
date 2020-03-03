@@ -118,4 +118,29 @@ defmodule Bix.Binary do
     l = last(a)
     {l, x}
   end
+
+  @doc """
+  Concatonates two bitstrings together.
+
+  ## Examples
+
+      iex> Bix.Binary.concat <<1, 2>>, <<3::size(2)>>
+      <<1, 2, 3::size(2)>>
+
+      iex> Bix.Binary.concat <<3::size(2)>>, <<1, 2>>
+      <<96, 32, 2::size(3)>>
+
+  """
+  @spec concat(bitstring, bitstring) :: bitstring
+  def concat(a, b) when is_binary(a) and is_bitstring(b) do
+    <<a::binary, b::bitstring>>
+  end
+
+  def concat(a, b) when is_bitstring(a) and is_binary(b) do
+    <<a::bitstring, b::binary>>
+  end
+
+  def concat(a, b) when is_bitstring(a) and is_bitstring(b) do
+    <<a::bitstring, b::bitstring>>
+  end
 end
