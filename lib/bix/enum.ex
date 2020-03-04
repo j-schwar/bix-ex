@@ -72,25 +72,27 @@ defmodule Bix.Enum do
     end
   end
 
-  @spec do_map_with_carry_l(binary, (byte, byte -> {byte, byte}), binary, byte) :: binary
+  @spec do_map_with_carry_l(binary, (byte, byte, byte -> {byte, byte}), binary, byte) :: binary
   defp do_map_with_carry_l(a, fun, acc, carry_in) when a != <<>> do
     import Bix.Binary
 
+    bit_length = if bit_size(a) >= 8, do: 8, else: bit_size(a)
     {x, a} = uncons(a)
-    {z, carry_out} = fun.(x, carry_in)
-    acc = acc <> <<z>>
+    {z, carry_out} = fun.(x, carry_in, bit_length)
+    acc = concat(acc, <<z::size(bit_length)>>)
     do_map_with_carry_l(a, fun, acc, carry_out)
   end
 
   defp do_map_with_carry_l(<<>>, _fun, acc, _carry_in), do: acc
 
-  @spec do_map_with_carry_r(binary, (byte, byte -> {byte, byte}), binary, byte) :: binary
+  @spec do_map_with_carry_r(binary, (byte, byte, byte -> {byte, byte}), binary, byte) :: binary
   defp do_map_with_carry_r(a, fun, acc, carry_in) when a != <<>> do
     import Bix.Binary
 
+    bit_length = if bit_size(a) >= 8, do: 8, else: bit_size(a)
     {x, a} = uncons_r(a)
-    {z, carry_out} = fun.(x, carry_in)
-    acc = <<z>> <> acc
+    {z, carry_out} = fun.(x, carry_in, bit_length)
+    acc = concat(<<z::size(bit_length)>>, acc)
     do_map_with_carry_r(a, fun, acc, carry_out)
   end
 
@@ -109,10 +111,11 @@ defmodule Bix.Enum do
   defp do_zip_with_carry_l(a, b, fun, acc, carry_in) when a != <<>> and b != <<>> do
     import Bix.Binary
 
+    bit_length = if bit_size(a) >= 8, do: 8, else: bit_size(a)
     {x, a} = uncons(a)
     {y, b} = uncons(b)
-    {z, carry_out} = fun.(x, y, carry_in)
-    acc = acc <> <<z>>
+    {z, carry_out} = fun.(x, y, carry_in, bit_length)
+    acc = concat(acc, <<z::size(bit_length)>>)
     do_zip_with_carry_l(a, b, fun, acc, carry_out)
   end
 
@@ -121,10 +124,11 @@ defmodule Bix.Enum do
   defp do_zip_with_carry_r(a, b, fun, acc, carry_in) when a != <<>> and b != <<>> do
     import Bix.Binary
 
+    bit_length = if bit_size(a) >= 8, do: 8, else: bit_size(a)
     {x, a} = uncons_r(a)
     {y, b} = uncons_r(b)
-    {z, carry_out} = fun.(x, y, carry_in)
-    acc = <<z>> <> acc
+    {z, carry_out} = fun.(x, y, carry_in, bit_length)
+    acc = concat(<<z::size(bit_length)>>, acc)
     do_zip_with_carry_r(a, b, fun, acc, carry_out)
   end
 

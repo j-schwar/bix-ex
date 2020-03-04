@@ -53,10 +53,10 @@ defmodule Bix do
   """
   @spec bsl(binary, 0..7) :: binary
   def bsl(a, n, opts \\ []) when n < 8 do
-    Bix.Enum.map_with_carry(a, &(Bix.Carry.bsl(&1, n, &2)), opts)
+    Bix.Enum.map_with_carry(a, &(Bix.Carry.bsl(&1, n, &2, &3)), opts)
   end
 
   def add(a, b, opts \\ []) do
-    Bix.Enum.zip_with_carry(a, b, &Bix.Carry.add/3, opts)
+    Bix.Enum.zip_with_carry(a, b, &Bix.Carry.add/4, opts)
   end
 end
