@@ -28,6 +28,13 @@ defmodule Bix do
   def band(a, b), do: Bix.Enum.zip(a, b, &Bitwise.band/2)
 
   @doc """
+  Reduces a list of bitstrings into a single one using `band`.
+  """
+  @spec band_map([bitstring]) :: bitstring
+  def band_map([x | []]), do: x
+  def band_map([x | xs]), do: band(x, band_map(xs))
+
+  @doc """
   Performs a bitwise `not` operation on a binary.
 
   ## Example
